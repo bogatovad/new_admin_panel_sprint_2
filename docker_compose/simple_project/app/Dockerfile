@@ -11,7 +11,6 @@ ENV DJANGO_SETTINGS_MODULE 'example.settings'
 
 COPY run_uwsgi.sh run_uwsgi.sh
 COPY requirements.txt requirements.txt
-COPY uwsgi/uwsgi.ini uwsgi.ini
 
 RUN  mkdir -p /var/www/static/ \
      && mkdir -p /var/www/media/ \
@@ -24,4 +23,4 @@ COPY . .
 
 EXPOSE 8000
 
-ENTRYPOINT ["uwsgi", "--strict", "--ini", "uwsgi.ini"]
+ENTRYPOINT ["uwsgi", "--strict", "--ini", "/opt/app/uwsgi/uwsgi.ini"]
