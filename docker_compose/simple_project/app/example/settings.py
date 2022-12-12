@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 config = dotenv_values(".env")
-DEBUG = config.get('DEBUG') == 'True'
+DEBUG = config.get('DEBUG', False) == 'True'
 
 include(
     'components/database.py',
