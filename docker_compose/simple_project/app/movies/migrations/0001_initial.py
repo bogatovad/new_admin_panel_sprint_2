@@ -2,9 +2,63 @@
 
 import django.core.validators
 from django.db import migrations, models
-import django.db.models.deletion
 import django.utils.timezone
 import uuid
+
+
+def alter_table_person(migrations):
+    return [
+        migrations.RunSQL(
+            sql=f'ALTER TABLE content.person ALTER COLUMN {field} '
+                'SET DEFAULT NOW();',
+            reverse_sql='',
+        )
+        for field in ('created', 'modified')
+    ]
+
+
+def alter_table_film_work(migrations):
+    return [
+        migrations.RunSQL(
+            sql=f'ALTER TABLE content.film_work ALTER COLUMN {field} '
+                'SET DEFAULT NOW();',
+            reverse_sql='',
+        )
+        for field in ('created', 'modified', 'creation_date')
+    ]
+
+
+def alter_table_genre(migrations):
+    return [
+        migrations.RunSQL(
+            sql=f'ALTER TABLE content.genre ALTER COLUMN {field} '
+                'SET DEFAULT NOW();',
+            reverse_sql='',
+        )
+        for field in ('created', 'modified')
+    ]
+
+
+def alter_table_genre_film_work(migrations):
+    return [
+        migrations.RunSQL(
+            sql=f'ALTER TABLE content.genre_film_work ALTER COLUMN {field} '
+                'SET DEFAULT NOW();',
+            reverse_sql='',
+        )
+        for field in ('created',)
+    ]
+
+
+def alter_text_field(migrations):
+    return [
+        migrations.RunSQL(
+            sql=(f"ALTER TABLE content.{table} ALTER COLUMN "
+                 "description DROP NOT NULL;"),
+            reverse_sql='',
+        )
+        for table in ('film_work', 'genre')
+    ]
 
 
 class Migration(migrations.Migration):
@@ -15,6 +69,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL("CREATE SCHEMA IF NOT EXISTS content;"),
         migrations.CreateModel(
             name='Filmwork',
             fields=[
@@ -117,5 +172,15 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name='genrefilmwork',
             constraint=models.UniqueConstraint(fields=('film_work_id', 'genre_id'), name='genre_film_work_idx'),
+        ),
+        *alter_table_person(migrations),
+        *alter_table_genre(migrations),
+        *alter_table_film_work(migrations),
+        *alter_table_genre_film_work(migrations),
+        *alter_text_field(migrations),
+        migrations.RunSQL(
+            sql=("CREATE TYPE role_enum AS ENUM ('actor', 'writer', 'director');"
+                 "ALTER TABLE content.person_film_work ALTER COLUMN role TYPE role_enum USING role::role_enum"),
+            reverse_sql='',
         ),
     ]

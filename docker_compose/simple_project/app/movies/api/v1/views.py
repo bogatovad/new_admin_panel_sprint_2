@@ -24,7 +24,7 @@ class MoviesMixin:
             )
 
     def get_queryset(self):
-        return self.model.objects.values().annotate(
+        return self.model.objects.prefetch_related("genre", "persons").values().annotate(
             actors=self.array_agg_person(role='actor'),
             directors=self.array_agg_person(role='director'),
             writers=self.array_agg_person(role='writer'),
